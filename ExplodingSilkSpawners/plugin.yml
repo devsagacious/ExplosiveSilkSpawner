@@ -1,0 +1,7 @@
+main: com.sagaciousdevelopment.ExplodingSilkSpawners.Core
+name: ExplodingSilkSpawners
+version: 1.0
+authors: [sagaciousdevelopment, Mate]
+commands:
+  givespawner:
+    usage: /<command> <entity> <amount>

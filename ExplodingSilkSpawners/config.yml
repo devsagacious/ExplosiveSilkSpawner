@@ -1,0 +1,19 @@
+# Amount of lives a spawner has by default
+starting-lives: 12
+
+# Allows mining whenever the player has a diamond pickaxe
+# with silktouch
+silktouch: true
+# Chance in % where player would recieve spawner
+silk-chance: 40
+# Spawner broken when player used silk
+silkbroken: '&6[ESS] &cYou have broken the spawner!'
+# Spawner succesfully mined when player used silk
+silkpickup: '&6[ESS] &aYou have succesfully mined the spawner!'
+# Message when a player mined a spawner but the spawner still has more lives
+livesremaining: '&6[ESS] &cThis spawner has &4%lives% &clives remaining!'
+# Message player recieved when given a spawner
+spawner-recieved: '&6[ESS] &eYou have recieved a Mob Spawner!'
+drops:
+  - 'EXP_BOTTLE/8'
+  - 'IRON_INGOT/4'
