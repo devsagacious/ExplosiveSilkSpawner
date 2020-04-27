@@ -1,3 +1,7 @@
+# Worlds that use the live mechanic
+# Silk touch will still work if enabled
+enabled-worlds: ['world']
+
 # Amount of lives a spawner has by default
 starting-lives: 12
 
@@ -14,6 +18,10 @@ silkpickup: '&6[ESS] &aYou have succesfully mined the spawner!'
 livesremaining: '&6[ESS] &cThis spawner has &4%lives% &clives remaining!'
 # Message player recieved when given a spawner
 spawner-recieved: '&6[ESS] &eYou have recieved a Mob Spawner!'
+drop-exp: true
+# Damage from explosion, default is 4
+damage: 4
+# MATERIAL/AMOUNT/CHANCE%
 drops:
-  - 'EXP_BOTTLE/8'
-  - 'IRON_INGOT/4'
+  - 'EXPERIENCE_BOTTLE/8/10'
+  - 'IRON_INGOT/4/70'
