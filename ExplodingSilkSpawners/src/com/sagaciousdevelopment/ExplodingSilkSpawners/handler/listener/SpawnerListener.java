@@ -1,14 +1,16 @@
 package com.sagaciousdevelopment.ExplodingSilkSpawners.handler.listener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -49,7 +51,10 @@ public class SpawnerListener implements Listener{
 	private String silkpickup;
 	private String livesremaining;
 	private Random r = new Random();
-	private List<ItemStack> drops;
+	private HashMap<ItemStack, Integer> drops;
+	private List<World> worlds;
+	private boolean dropexp;
+	private int damage;
 	
 	public SpawnerListener() {
 		Bukkit.getPluginManager().registerEvents(this, Core.getInstance());
@@ -60,21 +65,29 @@ public class SpawnerListener implements Listener{
 		silkbroken = ChatColor.translateAlternateColorCodes('&', conf.getString("silkbroken"));
 		silkpickup = ChatColor.translateAlternateColorCodes('&', conf.getString("silkpickup"));
 		livesremaining = ChatColor.translateAlternateColorCodes('&', conf.getString("livesremaining"));
-		drops = new ArrayList<ItemStack>();
+		dropexp = conf.getBoolean("drop-exp");
+		damage = conf.getInt("damage");
+		drops = new HashMap<ItemStack, Integer>();
 		for(String f : conf.getStringList("drops")) {
 			Material m = Material.valueOf(f.split("/")[0]);
 			Integer z = Integer.parseInt(f.split("/")[1]);
 			if(m!=null) {
-				drops.add(new ItemStack(m, z));
+				drops.put(new ItemStack(m, z), Integer.parseInt(f.split("/")[2]));
 			}else {
 				Core.getInstance().getLogger().info(f+" is null");
+			}
+		}
+		worlds = new ArrayList<World>();
+		for(String f : conf.getStringList("enabled-worlds")) {
+			if(Bukkit.getWorld(f)!=null) {
+				worlds.add(Bukkit.getWorld(f));
 			}
 		}
 	}
 	
 	@EventHandler
 	public void onSpawnerPlace(BlockPlaceEvent e) {
-		if(e.getItemInHand().getType().equals(Material.MOB_SPAWNER)) {
+		if(e.getItemInHand().getType().equals(Material.SPAWNER)) {
 			if(e.getItemInHand().hasItemMeta()) {
 			ItemMeta is = e.getItemInHand().getItemMeta();
 			if(is.hasLore()&&is.getLore().get(0).contains("Entity Type:")) {
@@ -89,15 +102,16 @@ public class SpawnerListener implements Listener{
 	
 	@EventHandler
 	public void onSpawnerBreak(BlockBreakEvent e) {
-		if(e.getBlock().getType().equals(Material.MOB_SPAWNER)) {
+		if(e.getBlock().getType().equals(Material.SPAWNER)) {
 			int s=0;
-		if(starting_lives>0) {
+		if(starting_lives>0&&
+				worlds.contains(e.getBlock().getWorld())) {
 			if(!Core.getInstance().sh.spawners.containsKey(e.getBlock().getLocation())) {Core.getInstance().sh.spawners.put(e.getBlock().getLocation(), starting_lives);}
 			s = Core.getInstance().sh.spawners.get(e.getBlock().getLocation());
-			e.getBlock().getWorld().createExplosion(e.getBlock().getLocation().getX(), e.getBlock().getLocation().getY(), e.getBlock().getLocation().getZ(), 1F, false, false);
-			e.getBlock().getWorld().playEffect(e.getBlock().getLocation(), Effect.EXPLOSION_HUGE, 1);
+			e.getBlock().getWorld().createExplosion(e.getBlock().getLocation().getX(), e.getBlock().getLocation().getY()+1, e.getBlock().getLocation().getZ(), Float.valueOf(damage), false, false);
+			e.getBlock().getWorld().spawnParticle(Particle.EXPLOSION_HUGE, e.getBlock().getLocation(), 1);
 			for(Location l : getCircle(e.getBlock().getLocation(), 7, 55)) {
-				l.getWorld().playEffect(l, Effect.FLAME, 1);
+				e.getBlock().getWorld().spawnParticle(Particle.FLAME, l, 1);
 			}
 			if(s>1) {
 			e.setCancelled(true);
@@ -108,7 +122,7 @@ public class SpawnerListener implements Listener{
 			}
 		}
 		if(silk&&s-1<1) {
-			if(e.getPlayer().getItemInHand().getType().equals(Material.DIAMOND_PICKAXE)&&e.getPlayer().getItemInHand().containsEnchantment(Enchantment.SILK_TOUCH)) {
+			if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)&&e.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Enchantment.SILK_TOUCH)) {
 				int f = r.nextInt(100);
 				if(silkchance<=f) {
 					e.setExpToDrop(0);
@@ -120,10 +134,13 @@ public class SpawnerListener implements Listener{
 			}
 		}
 		if(s-1<1) {
+			e.setExpToDrop(dropexp?e.getExpToDrop():0);
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Core.getInstance(), new Runnable() {
 				public void run() {
-					for(ItemStack drop : drops) {
-						e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), drop);
+					for(Entry<ItemStack, Integer> drop : drops.entrySet()) {
+						if(r.nextInt(100)<drop.getValue()) {
+						e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), drop.getKey());
+						}
 					}
 				}
 			}, 10L);
