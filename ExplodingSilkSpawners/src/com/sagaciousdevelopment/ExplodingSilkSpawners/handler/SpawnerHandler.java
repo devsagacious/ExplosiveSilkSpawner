@@ -67,19 +67,19 @@ public class SpawnerHandler {
 	}
 	
 	public ItemStack giveSpawner(CreatureSpawner cs) {
-		ItemStack is = new ItemStack(Material.MOB_SPAWNER);
+		ItemStack is = new ItemStack(Material.SPAWNER);
 		ItemMeta im = is.getItemMeta();
-		im.setDisplayName("§eMob Spawner");
-		im.setLore(new ArrayList<String>(Arrays.asList("§7Entity Type: " + StringUtils.capitalize(cs.getSpawnedType().name().toLowerCase()))));
+		im.setDisplayName("Â§eMob Spawner");
+		im.setLore(new ArrayList<String>(Arrays.asList("Â§7Entity Type: " + StringUtils.capitalize(cs.getSpawnedType().name().toLowerCase()))));
 		is.setItemMeta(im);
 		return is;
 	}
 	
 	public ItemStack giveSpawner(EntityType et) {
-		ItemStack is = new ItemStack(Material.MOB_SPAWNER);
+		ItemStack is = new ItemStack(Material.SPAWNER);
 		ItemMeta im = is.getItemMeta();
-		im.setDisplayName("§eMob Spawner");
-		im.setLore(new ArrayList<String>(Arrays.asList("§7Entity Type: " + StringUtils.capitalize(et.name().toLowerCase()))));
+		im.setDisplayName("Â§eMob Spawner");
+		im.setLore(new ArrayList<String>(Arrays.asList("Â§7Entity Type: " + StringUtils.capitalize(et.name().toLowerCase()))));
 		is.setItemMeta(im);
 		return is;
 	}
